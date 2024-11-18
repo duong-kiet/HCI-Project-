@@ -7,12 +7,12 @@ import ChooseUser from "../assets/mp3/ChooseUser.mp3";
 const accounts = [
   {
     id: "374ed1e4-481b-4074-a26e-6137657c6e35",
-    fullName: "Hoang Viet Anh",
+    fullName: "Duong Tuan Kiet",
     picture: "vanh/anhdaidien.jpg",
   },
   {
     id: "43332f46-89a4-435c-880e-4d72bb51149a",
-    fullName: "Vu Quang Hai",
+    fullName: "Chu Huy Quang",
     picture: "Hai/Hai.jpg",
   },
 ];
@@ -60,7 +60,7 @@ function UserSelect() {
               {accounts.map((account) => (
                 <User key={account.id} user={account} />
               ))}
-              
+
               {customUser && (
                 <div className="relative" onFocus={handleName(customUser.fullName)}>
                   <User key={customUser.id} user={customUser} type="CUSTOM" />
@@ -74,10 +74,10 @@ function UserSelect() {
                     onClick={() => {
                       setCustomUser(null);
                       selected?.type === "CUSTOM" && setSelected(accounts[0]);
-                    
+
                     }}
-                    onFocus = {handleName(accounts[0].fullName)}
-                  
+                    onFocus={handleName(accounts[0].fullName)}
+
                   >
                     <path
                       strokeLinecap="round"
@@ -131,8 +131,8 @@ function UserSelect() {
                     let file = files[0];
                     let name = file.name;
                     let suffixArr = name.split("."),
-                    suffix = suffixArr[suffixArr.length - 2];
-                    
+                      suffix = suffixArr[suffixArr.length - 2];
+
 
                     const base64 = await convertBase64(file);
 
