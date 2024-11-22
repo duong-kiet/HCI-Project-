@@ -3,7 +3,8 @@ import React from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Stack } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../assets/images/logo_nbg.png";
+// import Logo from "../assets/images/logo_nbg.png";
+import Logo from "../assets/images/favicon.jpg";
 
 export const MUINavBar = () => {
   const navigate = useNavigate();
@@ -31,13 +32,13 @@ export const MUINavBar = () => {
   }
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#1e3a8a" }}>
+    <AppBar position="static" sx={{ backgroundColor: "#e1a907" }}>
       <Toolbar>
         <IconButton
           tabIndex={"-1"}
           size="large"
           edge="start"
-          color="bg-blue-900"
+          color="bg-yellow-900"
           aria-label="logo"
           className="w-30"
         >

@@ -13,7 +13,7 @@ import Homepage from "./pages/Homepage";
 import News from "./pages/News";
 import Profile from "./pages/Profile";
 import Music from "./pages/Music";
-// import Videocall from "./pages/Videocall";
+import Videocall from "./pages/Videocall";
 import Sports from "./pages/Sports";
 import Education from "./pages/Education";
 import Books from "./pages/Books";
@@ -28,7 +28,7 @@ const router = createBrowserRouter(
         <Route path="/home-page" element={<Homepage />} />
         <Route path="/protected" element={<Protected />} />     
         <Route path="/news" element={<News />} />  
-        {/* <Route path="/Videocall" element={<Videocall />} /> */}
+        <Route path="/Videocall" element={<Videocall />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="//Sports" element={<Sports />} />
         <Route path="/Radio" element={<Radio />} />
