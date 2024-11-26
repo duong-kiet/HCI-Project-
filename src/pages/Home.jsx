@@ -61,6 +61,11 @@ function Home() {
     }
   };
 
+  const playWelcome = () => {
+    const audio = new Audio(Welcome)
+    audio.play()
+  }
+
   useEffect(() => {
     // Thêm sự kiện "click" để phát âm thanh
     document.addEventListener("click", playWelcomeAudio);
@@ -81,7 +86,7 @@ function Home() {
   ];
 
   return (
-    <div>
+    <div onClick={playWelcome}>
       <div className="bg-white py-3">
         <div className="flex items-center gap-x-5 px-6">
           <img src={logo} alt="Logo" className="w-20 h-20 object-cover rounded-full" />

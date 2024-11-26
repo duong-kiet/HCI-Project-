@@ -7,7 +7,7 @@ import ChooseUser from "../assets/mp3/ChooseUser.mp3";
 const accounts = [
   {
     id: "374ed1e4-481b-4074-a26e-6137657c6e35",
-    fullName: "Duong Tuan Kiet",
+    fullName: "Dương Tuấn Kiệt",
     picture: "vanh/anhdaidien.jpg",
   },
   {
@@ -50,8 +50,8 @@ function UserSelect() {
   }
 
   return (
-    <div className="h-full flex flex-col items-center justify-center gap-[24px] w-full max-w-[720px] mx-auto">
-      <h1 className="text-2xl font-semibold">Bạn là ai?</h1>
+    <div className="w-full max-w-md mx-auto space-y-6 p-6">
+      <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Bạn là ai?</h1>
       <div className="w-full p-4 text-right">
         <div className="mx-auto w-full max-w-md">
           <RadioGroup value={selected} onChange={setSelected}>
