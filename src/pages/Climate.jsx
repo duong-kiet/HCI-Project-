@@ -1,7 +1,7 @@
 import { MUINavBar } from '../components/MUINavBar'
 import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
-import {NewsContextProvider } from "../NewsContext";
+import { NewsContextProvider } from "../NewsContext";
 import Newspaper from "../components/Newspaper";
 import Container from '@mui/material/Container';
 import './News.css'
@@ -10,7 +10,7 @@ import { NavBarNews } from '../components/NavBarNews';
 import Weather from '../assets/mp3/Weather.mp3';
 
 function News() {
-  const handleAudio = () => { 
+  const handleAudio = () => {
     const audio = new Audio(Weather);
     audio.play();
   }
@@ -20,15 +20,15 @@ function News() {
   }, []);
   return (
     <>
-    <MUINavBar />
-    <NavBarNews />
-    <SpeechReg />
-    
-    <Container maxWidth="full" maxHeight="full" style={{backgroundColor: "#f6f6f6"}}>
-    <div className='News'>
-      <Newspaper />
-    </div>
-    </Container>
+      <MUINavBar />
+      <NavBarNews />
+      <SpeechReg />
+
+      <Container maxWidth="full" maxHeight="full" style={{ backgroundColor: "#f6f6f6" }}>
+        <div className='News'>
+          <Newspaper />
+        </div>
+      </Container>
     </>
 
   )

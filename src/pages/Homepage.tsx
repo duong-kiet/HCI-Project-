@@ -7,7 +7,7 @@ import SpeechReg from '../components/SpeechReg';
 import { useEffect } from 'react';
 
 function Homepage() {
-  const handleAudio = () => { 
+  const handleAudio = () => {
     if (!speechSynthesis.speaking) {
       let utterance = new SpeechSynthesisUtterance("This is Homepage.");
       utterance.lang = 'vi-VN';
@@ -21,7 +21,7 @@ function Homepage() {
   return (
     <div className='App'>
       <MUINavBar />
-      <SpeechReg />
+      {/* <SpeechReg /> */}
       Homepage
     </div>
   )

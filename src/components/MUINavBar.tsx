@@ -3,8 +3,7 @@ import React from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Stack } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../assets/images/logo_nbg.png";
-
+import Logo from "../../src/assets/images/firstroute/";
 export const MUINavBar = () => {
   const navigate = useNavigate();
 

@@ -33,4 +33,4 @@ const FirebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(FirebaseApp);
 
 
-export {FirebaseApp, db };
+export { FirebaseApp, db };
