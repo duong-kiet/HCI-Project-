@@ -1,64 +1,83 @@
 // import React, { useState, useEffect, useRef } from 'react';
+// import { Mic, MicOff } from 'lucide-react';
 
-// function WaveformVisualizer() {
-//   const canvasRef = useRef(null);
+// const WaveformVisualizer = ({ localAudioTrack, remoteAudioTracks }) => {
+//   const localCanvasRef = useRef(null);
+//   const remoteCanvasRefs = useRef([]);
 //   const [audioContext, setAudioContext] = useState(null);
-//   const [analyser, setAnalyser] = useState(null);
-//   const [dataArray, setDataArray] = useState(null);
+//   const [localAnalyser, setLocalAnalyser] = useState(null);
+//   const [remoteAnalysers, setRemoteAnalysers] = useState([]);
+//   const [localDataArray, setLocalDataArray] = useState(null);
+//   const [remoteDataArrays, setRemoteDataArrays] = useState([]);
 //   const [error, setError] = useState('');
+//   const [isCallActive, setIsCallActive] = useState(false);
 //   const animationRef = useRef(null);
+//   const [mutedLocal, setMutedLocal] = useState(false);
+//   const [mutedRemotes, setMutedRemotes] = useState([]);
 
-//   useEffect(() => {
-//     const setupAudio = async () => {
-//       try {
-//         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-//         const context = new (window.AudioContext || window.webkitAudioContext)();
-//         const audioAnalyser = context.createAnalyser();
-//         const source = context.createMediaStreamSource(stream);
-        
-//         audioAnalyser.fftSize = 2048;
-//         const bufferLength = audioAnalyser.frequencyBinCount;
-//         const dataArr = new Uint8Array(bufferLength);
-        
-//         source.connect(audioAnalyser);
-        
-//         setAudioContext(context);
-//         setAnalyser(audioAnalyser);
-//         setDataArray(dataArr);
-//       } catch (err) {
-//         setError('Không thể truy cập microphone. Vui lòng cấp quyền và thử lại.');
-//       }
-//     };
-
-//     setupAudio();
-
-//     return () => {
-//       if (audioContext) {
-//         audioContext.close();
-//       }
-//       if (animationRef.current) {
-//         cancelAnimationFrame(animationRef.current);
-//       }
-//     };
-//   }, []);
-
-//   useEffect(() => {
-//     if (!analyser || !dataArray || !canvasRef.current) return;
-
-//     const canvas = canvasRef.current;
-//     const canvasCtx = canvas.getContext('2d');
+//   const setupLocalAudio = async () => {
+//     if (!localAudioTrack) return;
     
-//     const draw = () => {
-//       const width = canvas.width;
-//       const height = canvas.height;
+//     try {
+//       const context = new (window.AudioContext || window.webkitAudioContext)();
+//       const analyser = context.createAnalyser();
       
+//       // Tạo MediaStream từ local audio track
+//       const stream = new MediaStream([localAudioTrack.getMediaStreamTrack()]);
+//       const source = context.createMediaStreamSource(stream);
+      
+//       analyser.fftSize = 2048;
+//       const bufferLength = analyser.frequencyBinCount;
+//       const dataArr = new Uint8Array(bufferLength);
+      
+//       source.connect(analyser);
+      
+//       setAudioContext(context);
+//       setLocalAnalyser(analyser);
+//       setLocalDataArray(dataArr);
+      
+//       setIsCallActive(true);
+//     } catch (err) {
+//       setError('Không thể thiết lập âm thanh local. Vui lòng thử lại.');
+//     }
+//   };
+
+//   const setupRemoteAudios = () => {
+//     if (!audioContext || !remoteAudioTracks.length) return;
+    
+//     const analysers = remoteAudioTracks.map((track, index) => {
+//       const analyser = audioContext.createAnalyser();
+//       analyser.fftSize = 2048;
+//       const bufferLength = analyser.frequencyBinCount;
+//       const dataArr = new Uint8Array(bufferLength);
+      
+//       const stream = new MediaStream([track.getMediaStreamTrack()]);
+//       const source = audioContext.createMediaStreamSource(stream);
+//       source.connect(analyser);
+      
+//       return { analyser, dataArr };
+//     });
+    
+//     setRemoteAnalysers(analysers.map(item => item.analyser));
+//     setRemoteDataArrays(analysers.map(item => item.dataArr));
+//     setMutedRemotes(new Array(remoteAudioTracks.length).fill(true));
+//   };
+
+//   const drawWaveform = (canvas, analyser, dataArray, color, isMuted) => {
+//     if (!canvas || !analyser || !dataArray) return;
+    
+//     const canvasCtx = canvas.getContext('2d');
+//     const width = canvas.width;
+//     const height = canvas.height;
+    
+//     canvasCtx.fillStyle = 'rgb(20, 20, 20)';
+//     canvasCtx.fillRect(0, 0, width, height);
+    
+//     if (isMuted) {
 //       analyser.getByteTimeDomainData(dataArray);
       
-//       canvasCtx.fillStyle = 'rgb(20, 20, 20)';
-//       canvasCtx.fillRect(0, 0, width, height);
-      
 //       canvasCtx.lineWidth = 2;
-//       canvasCtx.strokeStyle = 'rgb(0, 255, 0)';
+//       canvasCtx.strokeStyle = color;
 //       canvasCtx.beginPath();
       
 //       const sliceWidth = width / dataArray.length;
@@ -79,147 +98,517 @@
       
 //       canvasCtx.lineTo(width, height / 2);
 //       canvasCtx.stroke();
+//     } else {
+//       canvasCtx.beginPath();
+//       canvasCtx.strokeStyle = color;
+//       canvasCtx.lineWidth = 2;
+//       canvasCtx.moveTo(0, height / 2);
+//       canvasCtx.lineTo(width, height / 2);
+//       canvasCtx.stroke();
+//     }
+//   };
+
+//   useEffect(() => {
+//     setupLocalAudio();
+//   }, [localAudioTrack]);
+
+//   useEffect(() => {
+//     setupRemoteAudios();
+//   }, [remoteAudioTracks]);
+
+//   useEffect(() => {
+//     const animate = () => {
+//       if (localCanvasRef.current) {
+//         drawWaveform(localCanvasRef.current, localAnalyser, localDataArray, 'rgb(0, 255, 0)', mutedLocal);
+//       }
       
-//       animationRef.current = requestAnimationFrame(draw);
+//       remoteAnalysers.forEach((analyser, index) => {
+//         if (remoteCanvasRefs.current[index]) {
+//           drawWaveform(
+//             remoteCanvasRefs.current[index], 
+//             analyser, 
+//             remoteDataArrays[index], 
+//             'rgb(0, 191, 255)', 
+//             mutedRemotes[index]
+//           );
+//         }
+//       });
+      
+//       animationRef.current = requestAnimationFrame(animate);
 //     };
     
-//     draw();
+//     if (localAnalyser && localDataArray && remoteAnalysers.length > 0) {
+//       animate();
+//     }
     
 //     return () => {
 //       if (animationRef.current) {
 //         cancelAnimationFrame(animationRef.current);
 //       }
 //     };
-//   }, [analyser, dataArray]);
+//   }, [localAnalyser, remoteAnalysers, localDataArray, remoteDataArrays, mutedLocal, mutedRemotes]);
+
+//   const toggleLocalMute = () => {
+//     setMutedLocal(!mutedLocal);
+//     if (localAudioTrack) {
+//       localAudioTrack.setEnabled(!mutedLocal);
+//     }
+//   };
+
+//   const toggleRemoteMute = (index) => {
+//     const newMutedRemotes = [...mutedRemotes];
+//     newMutedRemotes[index] = !newMutedRemotes[index];
+//     setMutedRemotes(newMutedRemotes);
+    
+//     if (remoteAudioTracks[index]) {
+//       remoteAudioTracks[index].setEnabled(!newMutedRemotes[index]);
+//     }
+//   };
 
 //   return (
-//     <div className="w-full max-w-4xl p-4">
+//     <div className="w-full max-w-6xl p-4">
 //       <div className="mb-4">
-//         <h2 className="text-xl font-bold">Hiển thị Sóng Âm</h2>
+//         <h2 className="text-xl font-bold text-white">Hiển thị cuộc gọi</h2>
 //       </div>
 
-//       <div className="relative w-full bg-gray-900 rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
-//         <canvas
-//           ref={canvasRef}
-//           className="w-full h-full"
-//           width={1024}
-//           height={576}
-//         />
+//       <div className="flex gap-4">
+//         {/* Local Audio Waveform */}
+//         <div className="flex-1">
+//           <div className="relative">
+//             <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded z-10">
+//               Microphone của bạn
+//             </div>
+//             <div className="bg-gray-900 rounded-lg overflow-hidden" style={{ aspectRatio: '1/1' }}>
+//               <canvas
+//                 ref={localCanvasRef}
+//                 className="w-full h-full"
+//                 width={512}
+//                 height={512}
+//               />
+//             </div>
+//             <div className="mt-2 flex justify-center">
+//               <button 
+//                 onClick={toggleLocalMute} 
+//                 className="p-2 bg-gray-700 rounded-full text-white hover:bg-gray-600 transition-colors"
+//               >
+//                 {mutedLocal ? <MicOff size={24} /> : <Mic size={24} />}
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Remote Audio Waveforms */}
+//         {remoteAudioTracks.map((track, index) => (
+//           index > 0 && (<div key={index} className="flex-1">
+//             <div className="relative">
+//               <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded z-10">
+//                 Người tham gia {index}
+//               </div>
+//               <div className="bg-gray-900 rounded-lg overflow-hidden" style={{ aspectRatio: '1/1' }}>
+//                 <canvas
+//                   ref={(el) => {
+//                     remoteCanvasRefs.current[index] = el;
+//                   }}
+//                   className="w-full h-full"
+//                   width={512}
+//                   height={512}
+//                 />
+//               </div>
+//               <div className="mt-2 flex justify-center">
+//                 <button 
+//                   onClick={() => toggleRemoteMute(index)} 
+//                   className="p-2 bg-gray-700 rounded-full text-white hover:bg-gray-600 transition-colors"
+//                 >
+//                   {mutedRemotes[index] ? <MicOff size={24} /> : <Mic size={24} />}
+//                 </button>
+//               </div>
+//             </div>
+//           </div>)
+//         ))}
 //       </div>
 
 //       {error && (
-//         <div className="mt-4 text-red-500">
+//         <div className="mt-4 text-red-500 text-center">
 //           {error}
 //         </div>
 //       )}
-
-//       <div className="mt-4 text-sm text-gray-600">
-//         Di chuyển chuột qua đồ thị để xem chi tiết sóng âm
-//       </div>
 //     </div>
 //   );
 // };
 
-// export default WaveformVisualizer
+// export default WaveformVisualizer;
+
+// Ver 2
+// import React, { useState, useEffect, useRef } from 'react';
+// import { Mic, MicOff } from 'lucide-react';
+
+// const WaveformVisualizer = ({ localAudioTrack, remoteAudioTracks = [] }) => {
+//   const localCanvasRef = useRef(null);
+//   const remoteCanvasRefs = useRef([]);
+//   const [audioContext, setAudioContext] = useState(null);
+//   const [localAnalyser, setLocalAnalyser] = useState(null);
+//   const [remoteAnalysers, setRemoteAnalysers] = useState([]);
+//   const [localDataArray, setLocalDataArray] = useState(null);
+//   const [remoteDataArrays, setRemoteDataArrays] = useState([]);
+//   const [error, setError] = useState('');
+//   const animationRef = useRef(null);
+//   const [mutedLocal, setMutedLocal] = useState(false);
+//   const [mutedRemotes, setMutedRemotes] = useState([]);
+
+//   useEffect(() => {
+//     const setupAudioContext = () => {
+//       try {
+//         const context = new (window.AudioContext || window.webkitAudioContext)();
+//         setAudioContext(context);
+//       } catch (err) {
+//         setError('Không thể khởi tạo AudioContext. Vui lòng kiểm tra trình duyệt.');
+//       }
+//     };
+
+//     if (!audioContext) setupAudioContext();
+//   }, [audioContext]);
+
+//   const setupLocalAudio = async () => {
+//     if (!localAudioTrack || !audioContext) return;
+
+//     try {
+//       const analyser = audioContext.createAnalyser();
+//       const stream = new MediaStream([localAudioTrack.getMediaStreamTrack()]);
+//       const source = audioContext.createMediaStreamSource(stream);
+
+//       analyser.fftSize = 2048;
+//       const bufferLength = analyser.frequencyBinCount;
+//       const dataArr = new Uint8Array(bufferLength);
+
+//       source.connect(analyser);
+//       setLocalAnalyser(analyser);
+//       setLocalDataArray(dataArr);
+//     } catch (err) {
+//       setError('Không thể thiết lập âm thanh local. Vui lòng thử lại.');
+//     }
+//   };
+
+//   const setupRemoteAudios = () => {
+//     if (!audioContext || remoteAudioTracks.length === 0) return;
+
+//     const analysers = remoteAudioTracks.map((track) => {
+//       const analyser = audioContext.createAnalyser();
+//       analyser.fftSize = 2048;
+//       const bufferLength = analyser.frequencyBinCount;
+//       const dataArr = new Uint8Array(bufferLength);
+
+//       const stream = new MediaStream([track.getMediaStreamTrack()]);
+//       const source = audioContext.createMediaStreamSource(stream);
+//       source.connect(analyser);
+
+//       return { analyser, dataArr };
+//     });
+
+//     setRemoteAnalysers(analysers.map((item) => item.analyser));
+//     setRemoteDataArrays(analysers.map((item) => item.dataArr));
+//     setMutedRemotes(new Array(remoteAudioTracks.length).fill(true));
+//   };
+
+//   useEffect(() => {
+//     setupLocalAudio();
+//   }, [localAudioTrack, audioContext]);
+
+//   useEffect(() => {
+//     setupRemoteAudios();
+//   }, [remoteAudioTracks, audioContext]);
+
+//   const drawWaveform = (canvas, analyser, dataArray, color, isMuted) => {
+//     if (!canvas || !analyser || !dataArray) return;
+
+//     const canvasCtx = canvas.getContext('2d');
+//     const width = canvas.width;
+//     const height = canvas.height;
+
+//     canvasCtx.fillStyle = 'rgb(20, 20, 20)';
+//     canvasCtx.fillRect(0, 0, width, height);
+
+//     analyser.getByteTimeDomainData(dataArray);
+
+//     canvasCtx.lineWidth = 2;
+//     canvasCtx.strokeStyle = color;
+//     canvasCtx.beginPath();
+
+//     const sliceWidth = width / dataArray.length;
+//     let x = 0;
+
+//     for (let i = 0; i < dataArray.length; i++) {
+//       const v = dataArray[i] / 128.0;
+//       const y = v * (height / 2);
+
+//       if (i === 0) {
+//         canvasCtx.moveTo(x, y);
+//       } else {
+//         canvasCtx.lineTo(x, y);
+//       }
+//       x += sliceWidth;
+//     }
+
+//     canvasCtx.lineTo(width, height / 2);
+//     canvasCtx.stroke();
+//   };
+
+//   useEffect(() => {
+//     const animate = () => {
+//       if (localCanvasRef.current) {
+//         drawWaveform(
+//           localCanvasRef.current,
+//           localAnalyser,
+//           localDataArray,
+//           'rgb(0, 255, 0)',
+//           mutedLocal
+//         );
+//       }
+
+//       remoteAnalysers.forEach((analyser, index) => {
+//         if (remoteCanvasRefs.current[index]) {
+//           drawWaveform(
+//             remoteCanvasRefs.current[index],
+//             analyser,
+//             remoteDataArrays[index],
+//             'rgb(0, 191, 255)',
+//             mutedRemotes[index]
+//           );
+//         }
+//       });
+
+//       animationRef.current = requestAnimationFrame(animate);
+//     };
+
+//     if (localAnalyser && remoteAnalysers.length > 0) animate();
+
+//     return () => {
+//       if (animationRef.current) cancelAnimationFrame(animationRef.current);
+//     };
+//   }, [localAnalyser, remoteAnalysers, localDataArray, remoteDataArrays, mutedLocal, mutedRemotes]);
+
+//   const toggleLocalMute = () => {
+//     setMutedLocal((prev) => !prev);
+//     if (localAudioTrack) localAudioTrack.setEnabled(mutedLocal);
+//   };
+
+//   const toggleRemoteMute = (index) => {
+//     setMutedRemotes((prev) => {
+//       const newMuted = [...prev];
+//       newMuted[index] = !newMuted[index];
+//       return newMuted;
+//     });
+
+//     if (remoteAudioTracks[index]) {
+//       remoteAudioTracks[index].setEnabled(mutedRemotes[index]);
+//     }
+//   };
+
+//   return (
+//     <div className="w-full max-w-6xl p-4">
+//       <h2 className="text-xl font-bold text-white mb-4">Hiển thị cuộc gọi</h2>
+//       <div className="flex gap-4">
+//         <div className="flex-1">
+//           <div className="relative">
+//             <canvas
+//               ref={localCanvasRef}
+//               width={512}
+//               height={512}
+//               className="w-full h-full bg-gray-900 rounded-lg"
+//             />
+//             <button onClick={toggleLocalMute} className="absolute top-2 left-2 bg-black/50 p-2 rounded">
+//               {mutedLocal ? <MicOff color='blue'/> : <Mic color='red'/>}
+//             </button>
+//           </div>
+//         </div>
+//         {remoteAudioTracks.map((track, index) => (
+//           <div key={index} className="flex-1">
+//             <div className="relative">
+//               <canvas
+//                 ref={(el) => (remoteCanvasRefs.current[index] = el)}
+//                 width={512}
+//                 height={512}
+//                 className="w-full h-full bg-gray-900 rounded-lg"
+//               />
+//               <button
+//                 onClick={() => toggleRemoteMute(index)}
+//                 className="absolute top-2 left-2 bg-black/50 p-2 rounded"
+//               >
+//                 {mutedRemotes[index] ? <MicOff  color='blue'/> : <Mic color='red'/>}
+//               </button>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//       {error && <div className="text-red-500 mt-4">{error}</div>}
+//     </div>
+//   );
+// };
+
+// export default WaveformVisualizer;
+
+// ver 3 
+// import React, { useEffect, useRef } from "react";
+
+// const WaveformVisualizer = ({ localAudioTrack, remoteAudioTracks, mutedTracks = [] }) => {
+//   const canvasRef = useRef(null);
+
+//   useEffect(() => {
+//     if (!canvasRef.current) return;
+
+//     const canvas = canvasRef.current;
+//     const ctx = canvas.getContext("2d");
+//     const audioTracks = [...(remoteAudioTracks || [])];
+//     if (localAudioTrack) audioTracks.push(localAudioTrack);
+
+//     let animationFrameId;
+
+//     const drawWaveform = () => {
+//       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//       audioTracks.forEach((track, index) => {
+//         if (mutedTracks.includes(track)) return; // Skip muted tracks
+//         const volume = track.getVolumeLevel ? track.getVolumeLevel() : Math.random(); // Fallback for mock testing
+//         const barHeight = volume * canvas.height;
+
+//         ctx.fillStyle = `rgba(0, 255, 255, ${0.5 + 0.5 * volume})`;
+//         ctx.fillRect(index * 10, canvas.height - barHeight, 8, barHeight);
+//       });
+
+//       animationFrameId = requestAnimationFrame(drawWaveform);
+//     };
+
+//     drawWaveform();
+
+//     return () => {
+//       cancelAnimationFrame(animationFrameId);
+//     };
+//   }, [localAudioTrack, remoteAudioTracks, mutedTracks]);
+
+//   return (
+//     <canvas
+//       ref={canvasRef}
+//       width="400"
+//       height="100"
+//       style={{ background: "black", display: "block", margin: "0 auto" }}
+//     />
+//   );
+// };
+
+// export default WaveformVisualizer;
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MicOff, Mic} from 'lucide-react';
+import { Mic, MicOff } from 'lucide-react';
 
-const WaveformVisualizer = () => {
+const WaveformVisualizer = ({ localAudioTrack, remoteAudioTracks = [] }) => {
   const localCanvasRef = useRef(null);
-  const remoteCanvasRef = useRef(null);
+  const remoteCanvasRefs = useRef([]);
   const [audioContext, setAudioContext] = useState(null);
   const [localAnalyser, setLocalAnalyser] = useState(null);
-  const [remoteAnalyser, setRemoteAnalyser] = useState(null);
+  const [remoteAnalysers, setRemoteAnalysers] = useState([]);
   const [localDataArray, setLocalDataArray] = useState(null);
-  const [remoteDataArray, setRemoteDataArray] = useState(null);
+  const [remoteDataArrays, setRemoteDataArrays] = useState([]);
   const [error, setError] = useState('');
-  const [isCallActive, setIsCallActive] = useState(false);
   const animationRef = useRef(null);
-  const [mutedLocal, setMutedLocal] = useState(true);
-  const [mutedRemote, setMutedRemote] = useState(true);
+  const [mutedLocal, setMutedLocal] = useState(false);
+  const [mutedRemotes, setMutedRemotes] = useState([]);
+
+  useEffect(() => {
+    // Thiết lập AudioContext một lần duy nhất
+    const setupAudioContext = () => {
+      try {
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        setAudioContext(context);
+      } catch (err) {
+        setError('Không thể khởi tạo AudioContext. Vui lòng kiểm tra trình duyệt.');
+      }
+    };
+
+    if (!audioContext) setupAudioContext();
+  }, [audioContext]);
 
   const setupLocalAudio = async () => {
+    if (!localAudioTrack || !audioContext) return;
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); // lấy luồng âm thanh từ micro , stream chứa dữ liệu âm thanh từ micro
-      const context = new (window.AudioContext || window.webkitAudioContext)(); //cho phép bạn tạo, thao tác, và phát âm thanh trực tiếp trên trình duyệt.
-      const analyser = context.createAnalyser(); // tạo một đối tượng AnalyserNode để phân tích các thuộc tính của tín hiệu âm thanh, ví dụ: tần số hoặc cường độ.
-      const source = context.createMediaStreamSource(stream); // kết nối stream âm thanh từ micro vào đối tượng AnalyserNode.
-      
+      const analyser = audioContext.createAnalyser();
+      const stream = new MediaStream([localAudioTrack.getMediaStreamTrack()]);
+      const source = audioContext.createMediaStreamSource(stream);
+
       analyser.fftSize = 2048;
       const bufferLength = analyser.frequencyBinCount;
       const dataArr = new Uint8Array(bufferLength);
-      
+
       source.connect(analyser);
-      
-      setAudioContext(context);
       setLocalAnalyser(analyser);
       setLocalDataArray(dataArr);
-      
-      setTimeout(setupRemoteAudio, 1000);
     } catch (err) {
-      setError('Không thể truy cập microphone. Vui lòng cấp quyền và thử lại.');
+      setError('Không thể thiết lập âm thanh local. Vui lòng thử lại.');
     }
   };
 
-  const setupRemoteAudio = () => {
-    if (!audioContext) return;
-    
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 2048;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArr = new Uint8Array(bufferLength);
-    
-    setRemoteAnalyser(analyser);
-    setRemoteDataArray(dataArr);
-    setIsCallActive(true);
+  const setupRemoteAudios = () => {
+    if (!audioContext || remoteAudioTracks.length === 0) return;
+
+    const analysers = remoteAudioTracks.map((track) => {
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArr = new Uint8Array(bufferLength);
+
+      const stream = new MediaStream([track.getMediaStreamTrack()]);
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      return { analyser, dataArr };
+    });
+
+    setRemoteAnalysers(analysers.map((item) => item.analyser));
+    setRemoteDataArrays(analysers.map((item) => item.dataArr));
+    setMutedRemotes(new Array(remoteAudioTracks.length).fill(false));
   };
 
   useEffect(() => {
     setupLocalAudio();
+  }, [localAudioTrack, audioContext]);
 
-    return () => {
-      if (audioContext) {
-        audioContext.close();
-      }
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []);
+  useEffect(() => {
+    setupRemoteAudios();
+  }, [remoteAudioTracks, audioContext]);
 
-  const drawWaveform = (canvas, analyser, dataArray, color) => {
+  const drawWaveform = (canvas, analyser, dataArray, color, isMuted) => {
     if (!canvas || !analyser || !dataArray) return;
-    
+
     const canvasCtx = canvas.getContext('2d');
     const width = canvas.width;
     const height = canvas.height;
-    
-    analyser.getByteTimeDomainData(dataArray);
-    
+
+    // Xóa canvas
     canvasCtx.fillStyle = 'rgb(20, 20, 20)';
     canvasCtx.fillRect(0, 0, width, height);
-    
+
+    if (isMuted) return; // Nếu track bị mute, không vẽ waveform
+
+    analyser.getByteTimeDomainData(dataArray);
+
     canvasCtx.lineWidth = 2;
     canvasCtx.strokeStyle = color;
     canvasCtx.beginPath();
-    
+
     const sliceWidth = width / dataArray.length;
     let x = 0;
-    
+
     for (let i = 0; i < dataArray.length; i++) {
       const v = dataArray[i] / 128.0;
-      const y = v * height / 2;
-      
+      const y = v * (height / 2);
+
       if (i === 0) {
         canvasCtx.moveTo(x, y);
       } else {
         canvasCtx.lineTo(x, y);
       }
-      
       x += sliceWidth;
     }
-    
+
     canvasCtx.lineTo(width, height / 2);
     canvasCtx.stroke();
   };
@@ -227,139 +616,94 @@ const WaveformVisualizer = () => {
   useEffect(() => {
     const animate = () => {
       if (localCanvasRef.current) {
-        drawWaveform(localCanvasRef.current, localAnalyser, localDataArray, 'rgb(0, 255, 0)');
+        drawWaveform(
+          localCanvasRef.current,
+          localAnalyser,
+          localDataArray,
+          'rgb(0, 255, 0)',
+          mutedLocal
+        );
       }
-      if (remoteCanvasRef.current && isCallActive) {
-        drawWaveform(remoteCanvasRef.current, remoteAnalyser, remoteDataArray, 'rgb(0, 191, 255)');
-      }
+
+      remoteAnalysers.forEach((analyser, index) => {
+        if (remoteCanvasRefs.current[index]) {
+          drawWaveform(
+            remoteCanvasRefs.current[index],
+            analyser,
+            remoteDataArrays[index],
+            'rgb(0, 191, 255)',
+            mutedRemotes[index]
+          );
+        }
+      });
+
       animationRef.current = requestAnimationFrame(animate);
     };
-    
-    if (localAnalyser && localDataArray) {
-      animate();
-    }
-    
+
+    if (localAnalyser || remoteAnalysers.length > 0) animate();
+
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [localAnalyser, remoteAnalyser, localDataArray, remoteDataArray, isCallActive]);
+  }, [localAnalyser, remoteAnalysers, localDataArray, remoteDataArrays, mutedLocal, mutedRemotes]);
+
+  const toggleLocalMute = () => {
+    setMutedLocal((prev) => !prev);
+    if (localAudioTrack) localAudioTrack.setEnabled(!mutedLocal);
+  };
+
+  const toggleRemoteMute = (index) => {
+    setMutedRemotes((prev) => {
+      const newMuted = [...prev];
+      newMuted[index] = !newMuted[index];
+      return newMuted;
+    });
+
+    if (remoteAudioTracks[index]) {
+      remoteAudioTracks[index].setEnabled(!mutedRemotes[index]);
+    }
+  };
 
   return (
     <div className="w-full max-w-6xl p-4">
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-white">Hiển thị cuộc gọi</h2>
-      </div>
-
+      <h2 className="text-xl font-bold text-white mb-4">Hiển thị cuộc gọi</h2>
       <div className="flex gap-4">
-        {/* Local Audio Waveform */}
+        {/* Local audio */}
         <div className="flex-1">
           <div className="relative">
-            <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded z-10">
-              Microphone của bạn
-            </div>
-            <div className="bg-gray-900 rounded-lg overflow-hidden" style={{ aspectRatio: '1/1' }}>
-              <canvas
-                ref={localCanvasRef}
-                className="w-full h-full"
-                width={512}
-                height={512}
-              />
-            </div>
-            <div className='flex justify-center mt-[20px]'>
-              {!mutedLocal && (
-                <button
-                  className="group relative"
-                  onClick={() => setMutedLocal(!mutedLocal)}
-                >
-                  <div className="absolute -inset-2 bg-gradient-to-r from-red-400 to-pink-500 rounded-full blur opacity-40 group-hover:opacity-75 transition"></div>
-                    <div className="relative bg-slate-800 p-4 rounded-full border border-red-400 hover:border-pink-400 transition">
-                      <MicOff className="w-8 h-8 text-red-400 group-hover:text-pink-400" />
-                    </div>
-                </button>
-              )}
-
-              {mutedLocal && (
-                <button
-                  className="group relative"
-                  onClick={() => setMutedLocal(!mutedLocal)}
-                >
-                  <div className="absolute -inset-2 bg-gradient-to-r from-green-400 to-green-500 rounded-full blur opacity-40 group-hover:opacity-75 transition"></div>
-                    <div className="relative bg-slate-800 p-4 rounded-full border border-green-400 hover:border-green-400 transition">
-                      <Mic className="w-8 h-8 text-green-400 group-hover:text-green-400" />
-                    </div>
-                </button>
-              )}
-
-            </div>
+            <canvas
+              ref={localCanvasRef}
+              width={400}
+              height={400}
+              className="w-full h-full bg-gray-900 rounded-lg"
+            />
+            <button onClick={toggleLocalMute} className="absolute top-2 left-2 bg-black/50 p-2 rounded">
+              {mutedLocal ? <MicOff color='red'/> : <Mic color='blue'/>}
+            </button>
           </div>
         </div>
 
-        {/* Remote Audio Waveform */}
-        <div className="flex-1">
-          <div className="relative">
-            <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded z-10">
-              Người gọi đến
-            </div>
-            <div className="bg-gray-900 rounded-lg overflow-hidden" style={{ aspectRatio: '1/1' }}>
+        {/* Remote audios */}
+        {remoteAudioTracks.map((track, index) => (
+          <div key={index} className="flex-1">
+            <div className="relative">
               <canvas
-                ref={remoteCanvasRef}
-                className="w-full h-full"
+                ref={(el) => (remoteCanvasRefs.current[index] = el)}
                 width={512}
                 height={512}
+                className="w-full h-full bg-gray-900 rounded-lg"
               />
-            </div>
-            <div className='flex justify-center mt-[20px]'>
-              {!mutedRemote && (
-                <button
-                  className="group relative"
-                  onClick={() => setMutedRemote(!mutedRemote)}
-                >
-                  <div className="absolute -inset-2 bg-gradient-to-r from-red-400 to-pink-500 rounded-full blur opacity-40 group-hover:opacity-75 transition"></div>
-                    <div className="relative bg-slate-800 p-4 rounded-full border border-red-400 hover:border-pink-400 transition">
-                      <MicOff className="w-8 h-8 text-red-400 group-hover:text-pink-400" />
-                    </div>
-                </button>
-              )}
-
-              {mutedRemote && (
-                <button
-                  className="group relative"
-                  onClick={() => setMutedRemote(!mutedRemote)}
-                >
-                  <div className="absolute -inset-2 bg-gradient-to-r from-green-400 to-green-500 rounded-full blur opacity-40 group-hover:opacity-75 transition"></div>
-                    <div className="relative bg-slate-800 p-4 rounded-full border border-green-400 hover:border-green-400 transition">
-                      <Mic className="w-8 h-8 text-green-400 group-hover:text-green-400" />
-                    </div>
-                </button>
-              )}
+              <button
+                onClick={() => toggleRemoteMute(index)}
+                className="absolute top-2 left-2 bg-black/50 p-2 rounded"
+              >
+                {mutedRemotes[index] ? <MicOff color='red'/> : <Mic color='blue'/>}
+              </button>
             </div>
           </div>
-        </div>
+        ))}
       </div>
-
-      {error && (
-        <div className="mt-4 text-red-500">
-          {error}
-        </div>
-      )}
-
-      <div className="mt-4 flex justify-between items-center mt-[30px]">
-        <div className="text-sm text-gray-300">
-          {isCallActive ? 'Cuộc gọi đang diễn ra' : 'Đang kết nối...'}
-        </div>
-        <div className="flex gap-2">
-          {/* <button 
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Tắt micro bản thân
-          </button>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-            Tắt micro người nói
-          </button> */}
-        </div>
-      </div>
+      {error && <div className="text-red-500 mt-4">{error}</div>}
     </div>
   );
 };

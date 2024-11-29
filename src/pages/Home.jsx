@@ -7,7 +7,6 @@ import image2 from "../assets/images/firstroute/image2.jpg";
 import image3 from "../assets/images/firstroute/image3.jpg";
 import image4 from "../assets/images/firstroute/image4.jpg";
 import logo from "../assets/images/logo.jpg";
-// import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 
