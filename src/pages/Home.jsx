@@ -29,7 +29,7 @@ function Home() {
         navigate("/user-select");
       }
       if (command.includes("đăng ký")) {
-        navigate("/login");
+        navigate("/signup");
       }
     };
 

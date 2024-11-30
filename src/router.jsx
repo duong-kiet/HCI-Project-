@@ -18,6 +18,7 @@ import Sports from "./pages/Sports";
 import Education from "./pages/Education";
 import Books from "./pages/Books";
 import Radio from "./pages/Radio";
+import SignUp from "./pages/SignUp";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -35,6 +36,7 @@ const router = createBrowserRouter(
         <Route path="/Education" element={<Education />} />
         <Route path="/Books" element={<Books />} />
         <Route path="*" element={<Navigate to="/" />} />
+        <Route path="/signup" element={<SignUp />} />
       {/* </Route> */}
     </>
   ),
