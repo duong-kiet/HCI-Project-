@@ -6,6 +6,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import LoadModel from "../assets/mp3/LoadModel.mp3";
 import LoadModelSuccess from "../assets/mp3/LoadModelSuccess.mp3";
 import FaceReg from "../assets/mp3/FaceReg.mp3";
+
 function Login() {
   const handleAudio = () => { 
     const audio = new Audio(LoadModel);
@@ -27,6 +28,7 @@ function Login() {
   const [imageError, setImageError] = useState(false);
   const [counter, setCounter] = useState(5);
   const [labeledFaceDescriptors, setLabeledFaceDescriptors] = useState({});
+  const [isSpeaked, setIsSpeaked] = useState(false);
   const videoRef = useRef();
   const canvasRef = useRef();
   const faceApiIntervalRef = useRef();
@@ -36,24 +38,38 @@ function Login() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (!location?.state) {
-    return <Navigate to="/" replace={true} />;
-  }
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter") {
+        getLocalUserVideo();
+      }
+    };
 
-  const loadModels = async () => {
-    // const uri = import.meta.env.DEV ? "/models" : "/react-face-auth/models";
-    const uri = "/models";
+    document.addEventListener("keydown", handleKeyDown);
 
-    await faceapi.nets.ssdMobilenetv1.loadFromUri(uri);
-    await faceapi.nets.faceLandmark68Net.loadFromUri(uri);
-    await faceapi.nets.faceRecognitionNet.loadFromUri(uri);
-  };
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (modelsLoaded) {
+      if (!isSpeaked) {
+          // handleVoiceLoadModel();
+        handleVoiceOnFocus(); // Call handleVoiceOnFocus here
+        setIsSpeaked(true);
+      }
+    }
+  }, [modelsLoaded, isSpeaked]);
 
   useEffect(() => {
     setTempAccount(location?.state?.account);
-  }, []);
+    console.log("tempAccount:", location?.state?.account); // Log tempAccount here
+  }, [location]);
+
   useEffect(() => {
     if (tempAccount) {
+      console.log("tempAccount after setting:", tempAccount); // Log tempAccount here
       loadModels()
         .then(async () => {
           const labeledFaceDescriptors = await loadLabeledImages();
@@ -88,6 +104,14 @@ function Login() {
     }
     setCounter(5);
   }, [loginResult, counter]);
+
+  const loadModels = async () => {
+    const uri = "/models";
+
+    await faceapi.nets.ssdMobilenetv1.loadFromUri(uri);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(uri);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(uri);
+  };
 
   const getLocalUserVideo = async () => {
     navigator.mediaDevices
@@ -151,14 +175,7 @@ function Login() {
     let img;
 
     try {
-      const imgPath =
-        tempAccount?.type === "CUSTOM"
-          ? tempAccount.picture
-          : // : import.meta.env.DEV
-            // ? `/temp-accounts/${tempAccount.picture}`
-            // : `/react-face-auth/temp-accounts/${tempAccount.picture}`;
-            `/temp-accounts/${tempAccount.picture}`;
-
+      const imgPath = tempAccount.face_image_url;
       img = await faceapi.fetchImage(imgPath);
     } catch {
       setImageError(true);
@@ -175,6 +192,10 @@ function Login() {
     }
 
     return new faceapi.LabeledFaceDescriptors(tempAccount.id, descriptions);
+  }
+
+  if (!location?.state) {
+    return <Navigate to="/" replace={true} />;
   }
 
   if (imageError) {
@@ -200,13 +221,7 @@ function Login() {
     const audio = new Audio(FaceReg);
     audio.play();
   }
-  const [isSpeaked, setIsSpeaked] = useState(false);
-  if (modelsLoaded ){
-    if (!isSpeaked){
-    handleVoiceLoadModel();
-    setIsSpeaked(true);
-    }
-  }
+
   return (
     <div className="h-full flex flex-col items-center justify-center gap-[24px] max-w-[720px] mx-auto">
       {!localUserStream && !modelsLoaded && (
@@ -218,7 +233,7 @@ function Login() {
         </h2>
       )}
       {!localUserStream && modelsLoaded && (
-        <h2 className="text-center text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl" onFocus={handleVoiceOnFocus}>
+        <h2 className="text-center text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           <span className="block text-blue-900 mt-2">
             Nhận diện khuôn mặt để đăng nhập
           </span>
@@ -278,14 +293,12 @@ function Login() {
                   onClick={getLocalUserVideo}
                   type="button"
                   className="flex justify-center items-center w-full py-2.5 px-5 mr-2 text-sm font-medium text-white bg-blue-900 hover:bg-blue-900 rounded-lg border border-gray-200 inline-flex items-center"
-                  onFocus={handleVoiceOnFocus}
                 >
                   Nhận diện khuôn mặt
                 </button>
               </>
             ) : (
               <>
-                
                 <button
                   disabled
                   type="button"

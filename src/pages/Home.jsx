@@ -1,65 +1,58 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useEffect } from "react";
-import LoginPage from "../assets/mp3/EnterTologin.mp3";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Welcome from "../assets/mp3/Welcome.mp3";
 
 function Home() {
-
-  function startVoiceCommand() {
-    const recognition = new window.webkitSpeechRecognition();
-    recognition.lang = 'vi-VN';
-    recognition.continuous = true;
-    recognition.onresult = (event) => {
-        const command = event.results[event.results.length - 1][0].transcript.toLowerCase();
-        if (command.includes("trang chủ")) {
-            window.location.href = "/home";
-        } else if (command.includes("trang tiếp theo")) {
-            window.location.href = "/next";
-        }
-    };
-    recognition.start();
-  }
-
+  const navigate = useNavigate();
   const handleAudio = () => {
-    window.onload = startVoiceCommand;
     const audio = new Audio(Welcome);
-    audio.muted = true;  
-    audio.play().then(() => {
-      setTimeout(() => {
-        audio.muted = false;  // Bật lại âm thanh sau 1 giây
-      }, 1000);  // Thời gian chờ 1 giây
-    }).catch(error => console.log("Không thể phát âm thanh:", error));
-    // audio.play();
-  }
-  const handleLoginVoice = () => {
-    // window.onload = startVoiceCommand;
-    const audio = new Audio(LoginPage);
     audio.play();
-    
-  }
+  };
+
   useEffect(() => {
     handleAudio();
-  }, []);
+
+    if (!("webkitSpeechRecognition" in window)) {
+      console.log("Speech Recognition not supported by this browser.");
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.lang = "vi-VN"; // Adjust language as needed
+    recognition.interimResults = false;
+
+    recognition.onresult = (event) => {
+      const command = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+      console.log("Voice Command:", command);
+      if (command.includes("đăng nhập")) {
+        navigate("/user-select");
+      }
+      if (command.includes("đăng ký")) {
+        navigate("/signup");
+      }
+    };
+
+    recognition.start();
+
+    // Cleanup function to stop recognition on unmount
+    return () => recognition.stop();
+  }, [navigate]);
 
   return (
     <div className="bg-white py-40 md:pt-60 md:pb-24">
       <div className="h-full mx-auto max-w-7xl">
         <div className="text-center mb-24">
-          <h1 className="leading-3 translate-y-[-5px] mt-12 block  text-5xl text-center tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-900">
+          <h1 className="leading-3 translate-y-[-5px] mt-12 block text-5xl text-center tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-900">
             VAssist
           </h1>
           <p className="mt-7 text-md text-gray-600 max-w-3xl mx-4 md:mx-16 lg:mx-auto">
             VAssist là một ứng dụng web được phát triển để hỗ trợ người suy giảm
-            thị lực và người khiếm thị. VAssist giúp những ngưới suy giảm thị
-            lực và người khiếm thị có thể nghe đọc báo, nghe radio, kết nối trò
-            chuyện với nhau, chia sẻ những trải nghiệm của họ trong cuộc sống
-            giúp họ có nhiều động lực sống
+            thị lực và người khiếm thị.
           </p>
-          <Link 
+          <Link
             to={"/user-select"}
             className="flex gap-2 mt-12 w-fit mx-auto cursor-pointer z-10 py-3 px-6 rounded-full bg-gradient-to-r from-blue-500 to-blue-900"
-            onFocus={handleLoginVoice}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +73,7 @@ function Home() {
                 d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
               />
             </svg>
-            <span className="text-white text-3xl" >Đăng nhập</span>
+            <span className="text-white text-3xl">Đăng nhập</span>
           </Link>
         </div>
       </div>
