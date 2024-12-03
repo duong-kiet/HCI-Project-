@@ -5,7 +5,7 @@ import {NewsContextProvider } from "../NewsContext";
 import RadioVideos from "../components/RadioVideos";
 import Container from '@mui/material/Container';
 import './News.css'
-import SpeechReg from '../components/SpeechReg';
+import SpeechReg from '../components/SpeechReg.jsx';
 import { NavBarNews } from '../components/NavBarNews';
 import RadioAudio from '../assets/mp3/Radio.mp3';
 import VolumeSetting from '../components/Volume';

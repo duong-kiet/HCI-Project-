@@ -3,7 +3,7 @@ import { MUINavBar } from '../components/MUINavBar'
 import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import Container from '@mui/material/Container';
-import SpeechReg from '../components/SpeechReg';
+import SpeechReg from '../components/SpeechReg.jsx';
 
 function Music() {
   const handleAudio = () => { 

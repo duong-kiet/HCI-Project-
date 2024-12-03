@@ -1,9 +1,8 @@
 import { AppBar, Toolbar, IconButton, Typography, Button } from "@mui/material";
 import React from "react";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Stack } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import Logo from "../assets/images/logo_nbg.png";
+import { useNavigate } from "react-router-dom";
+import Logo from "../assets/images/i.jpg";
 
 export const MUINavBar = () => {
   const navigate = useNavigate();
@@ -31,46 +30,48 @@ export const MUINavBar = () => {
   }
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#1e3a8a" }}>
-      <Toolbar>
+    <AppBar position="sticky" sx={{ backgroundColor: "#ffffff" }}>
+      <Toolbar sx={{color: "#a75c00"}}>
         <IconButton
-          tabIndex={"-1"}
-          size="large"
-          edge="start"
-          color="bg-blue-900"
-          aria-label="logo"
-          className="w-30"
+            tabIndex={"-1"}
+            size="large"
+            edge="start"
+            color="bg-blue-900"
+            aria-label="logo"
+            className="w-30"
+            sx={{paddingRight: 0}}
         >
           <img
-            src={Logo}
-            alt="Logo"
-            style={{ width: "40px", height: "40px", marginRight: "10px" }}
+              src={Logo}
+              alt="Logo"
+              style={{ width: "40px", height: "40px" }}
           />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1}}>
           <IconButton
             tabIndex={"-1"}
             color="inherit"
             onClick={navigateToHome}
             className="h-10"
+            sx={{fontSize: 35, fontWeight: "bold"}}
           >
-            <img src="src\assets\images\logoV.png" alt="" />
+            TheEyes
           </IconButton>
         </Typography>
         <Stack direction="row" spacing={2}>
-          <Button tabIndex={"-1"} color="inherit" onClick={navigateToHome}>
+          <Button tabIndex={"-1"} sx={{'&:hover': {backgroundColor: "#c2c2c2"}}} color="inherit" onClick={navigateToHome}>
             Trang chủ
           </Button>
-          <Button tabIndex={"-1"} color="inherit" onClick={navigateToNews}>
-            Thư viện nói
+          <Button tabIndex={"-1"} sx={{'&:hover': {backgroundColor: "#c2c2c2"}}} color="inherit" onClick={navigateToNews}>
+            Sách nói
           </Button>
-          <Button tabIndex={"-1"} color="inherit" onClick={navigateToCall}>
+          <Button tabIndex={"-1"} sx={{'&:hover': {backgroundColor: "#c2c2c2"}}} color="inherit">
+            Nghe nhạc
+          </Button>
+          <Button tabIndex={"-1"} sx={{'&:hover': {backgroundColor: "#c2c2c2"}}} color="inherit" onClick={navigateToCall}>
             Xã hội
           </Button>
-          <Button tabIndex={"-1"} color="inherit">
-            Thông tin
-          </Button>
-          <Button tabIndex={"-1"} color="inherit" onClick={navigateToProfile}>
+          <Button tabIndex={"-1"} sx={{'&:hover': {backgroundColor: "#c2c2c2"}}} color="inherit" onClick={navigateToProfile}>
             Tài khoản
           </Button>
         </Stack>

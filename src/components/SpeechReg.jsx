@@ -1,8 +1,6 @@
 import "regenerator-runtime/runtime";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BrowserRouter, Route, Link, redirect } from "react-router-dom";
-import Redirect from "react-router-dom";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -66,25 +64,19 @@ const SpeechReg = () => {
     if (clickCount === 2) {
       disableRightClick();
     }
-    if (clickCount === 3) {
-      setShowComponent(true);
-      handleAudioOpen();
-      setClickCount(0);
-      disableRightClick();
-    }
   }, [clickCount]);
 
   const handleAudioOpen = () => {
     const audio = new Audio(AudioNavigate);
-    audio.play();
+    audio.play().then();
   };
   const handleAudioClose = () => {
     const audio = new Audio(EnterToClose);
-    audio.play();
+    audio.play().then();
   };
   const handleStartAudio = () => {
     const audio = new Audio(EnterToSpeech);
-    audio.play();
+    audio.play().then();
   };
   const disableRightClick = () => {
     window.addEventListener("contextmenu", (e) => {
@@ -100,7 +92,6 @@ const SpeechReg = () => {
     }
     if (pages.includes(string)) {
       setShouldRedirect(true);
-    } else {
     }
   }
   const handleSaveClick = () => {

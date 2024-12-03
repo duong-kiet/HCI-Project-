@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MUINavBar } from "../components/MUINavBar";
-import SpeechReg from "../components/SpeechReg";
+import SpeechReg from "../components/SpeechReg.jsx";
 import VolumeSetting from "../components/Volume";
 import LoginSuccess from "../assets/mp3/LoginSuccess.mp3";
 import EnterToLogout from "../assets/mp3/EnterToLogout.mp3";
