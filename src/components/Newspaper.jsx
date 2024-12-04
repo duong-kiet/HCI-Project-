@@ -10,6 +10,7 @@ const Newspaper = () => {
   useEffect(() => {
     const getArticles = async () => {
     const articlesCol = collection(db, 'articles');
+    console.log(articlesCol);
     const articleSnapshot = await getDocs(articlesCol);
     const articles = articleSnapshot.docs.map(doc => doc.data());
     // setArticles(articles);

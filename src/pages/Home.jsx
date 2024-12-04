@@ -8,7 +8,7 @@ import image3 from "../assets/images/firstroute/image3.jpg";
 import image4 from "../assets/images/firstroute/image4.jpg";
 import logo from "../assets/images/logo.jpg";
 import { useNavigate } from "react-router-dom";
-import { saveAs } from "file-saver";
+import "regenerator-runtime/runtime";
 
 function Home() {
   const welcomeAudio = useRef(new Audio(Welcome));
@@ -16,14 +16,30 @@ function Home() {
   const [audioPlayed, setAudioPlayed] = useState(false);
 
   const navigate = useNavigate();
-  const handleAudio = () => {
-    const audio = new Audio(Welcome);
-    audio.play();
-  };
 
+  // Phát âm thanh chào mừng chỉ một lần
   useEffect(() => {
-    handleAudio();
+    const playAudioOnce = () => {
+      if (!audioPlayed) {
+        const audio = welcomeAudio.current;
+        if (!audio.paused) {
+          audio.pause();
+          audio.currentTime = 0; // Đặt lại thời gian phát nếu âm thanh đang chạy
+        }
+        audio.play();
+        setAudioPlayed(true);
+      }
+    };
 
+    document.addEventListener("click", playAudioOnce);
+
+    return () => {
+      document.removeEventListener("click", playAudioOnce);
+    };
+  }, [audioPlayed]);
+
+  // Nhận diện giọng nói và xử lý điều hướng
+  useEffect(() => {
     if (!("webkitSpeechRecognition" in window)) {
       console.log("Speech Recognition not supported by this browser.");
       return;
@@ -31,47 +47,24 @@ function Home() {
 
     const recognition = new window.webkitSpeechRecognition();
     recognition.continuous = true;
-    recognition.lang = "vi-VN"; // Adjust language as needed
+    recognition.lang = "vi-VN"; // Ngôn ngữ tiếng Việt
     recognition.interimResults = false;
 
     recognition.onresult = (event) => {
       const command = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
       console.log("Voice Command:", command);
-      if (command.includes("đăng nhập")) {
+      if (command.includes("tôi muốn đăng nhập")) {
         navigate("/user-select");
       }
-      if (command.includes("đăng ký")) {
+      if (command.includes("tôi muốn đăng ký")) {
         navigate("/signup");
       }
     };
 
     recognition.start();
 
-    // Cleanup function to stop recognition on unmount
-    return () => recognition.stop();
+    return () => recognition.stop(); // Dừng nhận diện giọng nói khi component bị hủy
   }, [navigate]);
-
-  // click -> play audio
-  const playWelcomeAudio = () => {
-    if (!audioPlayed) {
-      welcomeAudio.current.play();
-      setAudioPlayed(true);
-      document.removeEventListener("click", playWelcomeAudio); // Xóa sự kiện sau lần đầu tiên
-    }
-  };
-
-  const playWelcome = () => {
-    const audio = new Audio(Welcome)
-    audio.play()
-  }
-
-  useEffect(() => {
-    // Thêm sự kiện "click" để phát âm thanh
-    document.addEventListener("click", playWelcomeAudio);
-    return () => {
-      document.removeEventListener("click", playWelcomeAudio); // Dọn dẹp sự kiện khi component bị hủy
-    };
-  }, []);
 
   const handleLoginVoice = () => {
     loginAudio.current.play();
@@ -85,7 +78,7 @@ function Home() {
   ];
 
   return (
-    <div onClick={playWelcome}>
+    <div>
       <div className="bg-white py-3">
         <div className="flex items-center gap-x-5 px-6">
           <img src={logo} alt="Logo" className="w-20 h-20 object-cover rounded-full" />
@@ -107,7 +100,7 @@ function Home() {
             <Link
               to={"/user-select"}
               className="flex gap-2 mt-12 w-fit mx-auto cursor-pointer z-10 py-3 px-6 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-900"
-              onFocus={handleLoginVoice}
+              // onFocus={handleLoginVoice}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

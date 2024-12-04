@@ -21,7 +21,7 @@ function Homepage() {
   return (
     <div className='App'>
       <MUINavBar />
-      <SpeechReg />
+      {/* <SpeechReg /> */}
       Homepage
     </div>
   )

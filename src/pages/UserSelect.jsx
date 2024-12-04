@@ -1,179 +1,263 @@
-import React, { useState } from "react";
-import User from "../components/User";
-import { RadioGroup } from "@headlessui/react";
-import { Link } from "react-router-dom";
-import { useEffect } from "react";
-import ChooseUser from "../assets/mp3/ChooseUser.mp3";
-const accounts = [
-  {
-    id: "374ed1e4-481b-4074-a26e-6137657c6e35",
-    fullName: "Dương Tuấn Kiệt",
-    picture: "vanh/anhdaidien.jpg",
-  },
-  {
-    id: "43332f46-89a4-435c-880e-4d72bb51149a",
-    fullName: "Chu Huy Quang",
-    picture: "Hai/Hai.jpg",
-  },
-];
+// import React, { useState, useEffect } from "react";
+// import { RadioGroup } from "@headlessui/react";
+// import { useNavigate } from "react-router-dom";
+// import { supabase } from "../supabase.js";
+
+// function UserSelect() {
+//   const [accounts, setAccounts] = useState([]);
+//   const [selected, setSelected] = useState(null);
+//   const [errorMessage, setErrorMessage] = useState(null);
+//   const [recognition, setRecognition] = useState(null);
+//   const navigate = useNavigate();
+
+//   // Fetch user data from Supabase
+//   useEffect(() => {
+//     const fetchUsers = async () => {
+//       const { data, error } = await supabase.from("users").select("id, full_name, face_image_url");
+//       if (error) {
+//         console.error("Error fetching users:", error);
+//         setErrorMessage("Failed to load user data.");
+//         return;
+//       }
+//       if (data.length > 0) {
+//         setAccounts(data);
+//         setSelected(data[0]); // Set the first user as the default selected
+//       }
+//     };
+
+//     fetchUsers();
+//   }, []);
+
+//   // Initialize speech recognition
+//   useEffect(() => {
+//     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+//     const recognition = new SpeechRecognition();
+//     recognition.lang = "vi-VN"; // Set to Vietnamese
+//     recognition.continuous = true;
+//     recognition.interimResults = false;
+
+//     recognition.onstart = () => {
+//       console.log("Voice recognition started");
+//       speak("Tên bạn là gì");
+//     };
+
+//     recognition.onresult = (event) => {
+//       const name = event.results[event.results.length - 1][0].transcript.trim();
+//       console.log("Recognized name:", name);
+//       const matchedUser = accounts.find(user => user.full_name.toLowerCase() === name.toLowerCase());
+//       if (matchedUser) {
+//         setSelected(matchedUser);
+//         recognition.stop(); // Stop recognition after a successful match
+//         speak(`Tên bạn là, ${matchedUser.full_name}`, () => {
+//           navigate("/login", { state: { account: matchedUser } });
+//         });
+//       } else {
+//           setErrorMessage("Không tìm thấy người dùng phù hợp.");
+//           speak("Tôi không tìm thấy tên của bạn", () => {
+//           speak("Tên bạn là gì");
+//         });
+//       }
+//     };
+
+//     recognition.onerror = (event) => {
+//       console.error("Voice recognition error:", event.error);
+//       setErrorMessage("Lỗi nhận diện giọng nói.");
+//     };
+
+//     setRecognition(recognition);
+//   }, [accounts, navigate]);
+
+//   // Start speech recognition when component mounts
+//   useEffect(() => {
+//     if (recognition) {
+//       recognition.start();
+//     }
+//     return () => {
+//       if (recognition) {
+//         recognition.stop();
+//       }
+//     };
+//   }, [recognition]);
+
+//   const speak = (text, callback) => {
+//     const utterance = new SpeechSynthesisUtterance(text);
+//     utterance.lang = 'vi-VN';
+//     utterance.onend = callback;
+//     speechSynthesis.speak(utterance);
+//   };
+
+//   return (
+//     <div className="h-full flex flex-col items-center justify-center gap-6 w-full max-w-[720px] mx-auto">
+//       <h1 className="text-2xl font-semibold">Bạn là ai?</h1>
+
+//       <div className="w-full p-4 text-right">
+//         <div className="mx-auto w-full max-w-md">
+//           <RadioGroup value={selected} onChange={setSelected}>
+//             <div className="space-y-4">
+//               {accounts.map((user) => (
+//                 <RadioGroup.Option key={user.id} value={user}>
+//                   {({ checked }) => (
+//                     <div
+//                       className={`flex items-center gap-4 p-3 rounded-lg border ${
+//                         checked ? "border-blue-500" : "border-gray-300"
+//                       }`}
+//                     >
+//                       <img
+//                         src={user.face_image_url}
+//                         alt={user.full_name}
+//                         className="w-12 h-12 rounded-full object-cover"
+//                         onError={(e) => (e.target.src = "/default-avatar.png")}
+//                       />
+//                       <span className="font-medium">{user.full_name}</span>
+//                     </div>
+//                   )}
+//                 </RadioGroup.Option>
+//               ))}
+//             </div>
+//           </RadioGroup>
+
+//           {errorMessage && (
+//             <p className="text-red-500 text-xs mt-2">{errorMessage}</p>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default UserSelect;
+
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabase.js";
+import audioAskName from "../assets/mp3/ask_name.mp3";
+import audioNotFound from "../assets/mp3/user_not_found.mp3";
 
 function UserSelect() {
-  const handleAudio = () => {
-    const audio = new Audio(ChooseUser);
-    audio.play();
-  };
-
-  useEffect(() => {
-    handleAudio();
-  }, []);
-  const [selected, setSelected] = useState(accounts[0]);
-  const [customUser, setCustomUser] = useState(null);
+  const [accounts, setAccounts] = useState([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(false); // Trạng thái dữ liệu đã tải
+  const [userName, setUserName] = useState("");
+  const [nameRecorded, setNameRecorded] = useState(false);
+  const [isAskingName, setIsAskingName] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const audioRef = useRef(null);
+  const navigate = useNavigate();
 
-  const convertBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-
-      fileReader.onload = () => {
-        resolve(fileReader.result);
-      };
-
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
+  // Hàm phát audio
+  const playAudio = (audioSrc, onEndedCallback) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = audioSrc;
+      audioRef.current.play();
+      if (onEndedCallback) {
+        audioRef.current.onended = onEndedCallback;
+      }
+    }
   };
-  const handleName = (name) => {
-    console.log(name);
 
-  }
+  // Bắt đầu nhận diện giọng nói
+  const startSpeechRecognition = (onResultCallback) => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "vi-VN";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => console.log("Voice recognition started");
+    recognition.onresult = onResultCallback;
+    recognition.onerror = (event) => console.error("Recognition Error:", event.error);
+
+    recognition.start();
+
+    return () => recognition.stop();
+  };
+
+  // Xử lý nhận diện tên
+  const handleNameRecognition = (event) => {
+    const command = event.results[event.results.length - 1][0].transcript.trim();
+    console.log("Voice Command (Name):", command);
+
+    if (!nameRecorded) {
+      const matchedUser = accounts.find(
+        (user) => user.full_name.toLowerCase() === command.toLowerCase()
+      );
+
+      if (matchedUser) {
+        setUserName(matchedUser.full_name);
+        setNameRecorded(true);
+        navigate("/login", { state: { account: matchedUser } });
+      } else {
+        setErrorMessage("Không tìm thấy người dùng phù hợp.");
+        playAudio(audioNotFound, () => {
+          navigate("/");
+        });
+      }
+    }
+  };
+
+  // Khi âm thanh hỏi tên phát xong
+  const handleAudioEnd = () => {
+    setIsAskingName(false);
+    startSpeechRecognition(handleNameRecognition);
+  };
+
+  // Lấy danh sách người dùng từ Supabase
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data, error } = await supabase.from("users").select("id, full_name, face_image_url");
+        if (error) {
+          console.error("Error fetching users:", error);
+          setErrorMessage("Failed to load user data.");
+        } else {
+          setAccounts(data);
+          setIsDataLoaded(true); // Đánh dấu dữ liệu đã tải xong
+        }
+      } catch (err) {
+        console.error("Error during fetching users:", err);
+        setErrorMessage("Failed to load user data.");
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Phát âm thanh hỏi tên sau khi dữ liệu được tải
+  useEffect(() => {
+    if (isDataLoaded && isAskingName && !nameRecorded) {
+      playAudio(audioAskName, handleAudioEnd); // Phát âm thanh hỏi tên, sau đó nhận diện giọng nói
+    }
+  }, [isDataLoaded, isAskingName, nameRecorded]);
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-6 p-6">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Bạn là ai?</h1>
-      <div className="w-full p-4 text-right">
-        <div className="mx-auto w-full max-w-md">
-          <RadioGroup value={selected} onChange={setSelected}>
-            <RadioGroup.Label className="sr-only">Server size</RadioGroup.Label>
-            <div className="space-y-2" >
-              {accounts.map((account) => (
-                <User key={account.id} user={account} />
-              ))}
-
-              {customUser && (
-                <div className="relative" onFocus={handleName(customUser.fullName)}>
-                  <User key={customUser.id} user={customUser} type="CUSTOM" />
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="text-blue-800 w-6 h-6 absolute top-1/2 -translate-y-1/2 right-[-32px] cursor-pointer"
-                    onClick={() => {
-                      setCustomUser(null);
-                      selected?.type === "CUSTOM" && setSelected(accounts[0]);
-
-                    }}
-                    onFocus={handleName(accounts[0].fullName)}
-
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </div>
-              )}
-            </div>
-          </RadioGroup>
-          {!customUser && (
-            <div className="flex flex-col items-center justify-center w-full mt-3">
-              <label
-                htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:border-blue-200 hover:bg-gray-100"
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <audio ref={audioRef}></audio> {/* Ref cho audio */}
+      <div className="max-w-md w-full space-y-8">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Chọn người dùng
+        </h2>
+        {errorMessage && (
+          <p className="text-red-500 text-center text-sm">{errorMessage}</p>
+        )}
+        {isDataLoaded ? (
+          <div className="mt-8 space-y-6">
+            {accounts.map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center gap-4 p-3 rounded-lg border border-gray-300"
               >
-                <div className="flex flex-col items-center justify-center py-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6 text-blue-500 mb-2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-                    />
-                  </svg>
-                  <p className="font-semibold mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    Chọn để tải ảnh lên
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    PNG, JPG hoặc JPEG
-                  </p>
-                </div>
-                <input
-                  id="dropzone-file"
-                  type="file"
-                  accept=".png, .jpg, .jpeg"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const files = e.target.files;
-                    if (files == null || files.length == 0) {
-                      setErrorMessage("No files wait for import.");
-                      return;
-                    }
-                    let file = files[0];
-                    let name = file.name;
-                    let suffixArr = name.split("."),
-                      suffix = suffixArr[suffixArr.length - 2];
-
-
-                    const base64 = await convertBase64(file);
-
-                    const user = {
-                      id: "custom",
-                      fullName: suffix,
-                      type: "CUSTOM",
-                      picture: base64,
-                    };
-                    setCustomUser(user);
-                    setSelected(user);
-                  }}
+                <img
+                  src={user.face_image_url}
+                  alt={user.full_name}
+                  className="w-12 h-12 rounded-full object-cover"
+                  onError={(e) => (e.target.src = "/default-avatar.png")}
                 />
-              </label>
-              {errorMessage && (
-                <p className="text-red-500 text-xs mt-2">{errorMessage}</p>
-              )}
-            </div>
-          )}
-          <Link
-            to="/login"
-            state={{ account: selected }}
-            className="mt-4 inline-flex items-center rounded-md bg-blue-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-900"
-          >
-            Tiếp tục đăng nhập
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="ml-1.5 h-5 w-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-              />
-            </svg>
-          </Link>
-        </div>
+                <span className="font-medium">{user.full_name}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-sm text-gray-600">Đang tải dữ liệu...</p>
+        )}
       </div>
     </div>
   );

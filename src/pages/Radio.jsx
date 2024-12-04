@@ -1,8 +1,8 @@
 import { MUINavBar } from '../components/MUINavBar'
 import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
-import {NewsContextProvider } from "../NewsContext";
-// import RadioVideos from "../components/RadioVideos";
+import { NewsContextProvider } from "../NewsContext";
+import RadioVideos from "../components/RadioVideos";	
 import Container from '@mui/material/Container';
 import './News.css'
 import SpeechReg from '../components/SpeechReg';
@@ -19,17 +19,18 @@ function Radio() {
   useEffect(() => {
     handleAudio();
   }, []);
+  
   return (
     <>
     <MUINavBar />
-    <NavBarNews />
-    <SpeechReg />
+    {/* <NavBarNews /> */}
+    {/* <SpeechReg /> */}
     <VolumeSetting />
     
     <Container maxWidth="full" maxHeight="full" style={{backgroundColor: "#f6f6f6"}}>
-    <div className='News'>
-      <RadioVideos />
-    </div>
+      <div className='News'>
+        <RadioVideos />
+      </div>
     </Container>
     </>
 

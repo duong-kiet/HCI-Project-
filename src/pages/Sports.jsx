@@ -13,25 +13,26 @@ import SportsVideos from '../components/SportsVideos';
 import Sport from '../assets/mp3/Sport.mp3';
 
 function Sports() {
-  const handleAudio = () => { 
-    const audio = new Audio(Sport);
-    audio.play();
-  }
+  // const handleAudio = () => { 
+  //   const audio = new Audio(Sport);
+  //   audio.play();
+  // }
 
-  useEffect(() => {
-    handleAudio();
-  }, []);
+  // useEffect(() => {
+  //   handleAudio();
+  // }, []);
+
   return (
     <>
     <MUINavBar />
-    <NavBarNews />
-    <SpeechReg />
+    {/* <NavBarNews /> */}
+    {/* <SpeechReg /> */}
     <VolumeSetting />
     
     <Container maxWidth="full" maxHeight="full" style={{backgroundColor: "#f6f6f6"}}>
-    <div className='News'>
-      <SportsVideos />
-    </div>
+      <div className='News'>
+        <SportsVideos />
+      </div>
     </Container>
     </>
 

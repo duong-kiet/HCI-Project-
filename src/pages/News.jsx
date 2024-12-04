@@ -23,14 +23,14 @@ function News() {
     <>
     
     <MUINavBar />
-    <NavBarNews />
+    {/* <NavBarNews /> */}
     <SpeechReg />
     <VolumeSetting />
     
     <Container maxWidth="full" maxHeight="full" style={{backgroundColor: "#f6f6f6"}}>
-    <div className='News'>
-      <Newspaper />
-    </div>
+      <div className='News'>
+        <Newspaper />
+      </div>
     </Container>
     </>
 
