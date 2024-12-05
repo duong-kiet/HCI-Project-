@@ -35,6 +35,16 @@ const Newspaper = () => {
     current_playing.current = randomRadio;
     playAudio(randomRadio);
   }
+  function play(index) {
+    if (current_playing.current === index) {
+      if (audioRef.current.paused) audioRef.current.play()
+      else audioRef.current.pause()
+    }
+    else {
+      current_playing.current = index
+      playAudio(articles[index]["audioUrl"])
+    }
+  }
   const current_playing = useRef(null);
   const navigate = useNavigate()
   useEffect(() => {
@@ -106,7 +116,7 @@ const Newspaper = () => {
     <div>
       <div className="all__news">
         {articles.map((article, index) => (
-          <Article key={index} article={article} />
+          <Article play={() => play(index)} key={index} article={article} />
         ))}
       </div>
     </div>

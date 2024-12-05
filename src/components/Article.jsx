@@ -7,8 +7,6 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import "./Article.css"
 
 function Article(props) {
-
-
   return (
     <div className="news__card">
       <CardMedia
@@ -37,6 +35,7 @@ function Article(props) {
         <IconButton
           tabIndex={"1"}
           aria-label="play/pause"
+          onClick={() => props.play()}
         >
           <PlayArrowIcon sx={{ height: 38, width: 38 }} />
         </IconButton>
