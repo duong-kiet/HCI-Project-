@@ -23,16 +23,15 @@ function Sports() {
   }, []);
   return (
     <>
-    <MUINavBar />
-    <NavBarNews />
-    <SpeechReg />
-    <VolumeSetting />
-    
-    <Container maxWidth="full" maxHeight="full" style={{backgroundColor: "#f6f6f6"}}>
-    <div className='News'>
-      <SportsVideos />
-    </div>
-    </Container>
+      <NavBarNews />
+      <SpeechReg />
+      <VolumeSetting />
+
+      <Container maxWidth="full" maxHeight="full" style={{backgroundColor: "#f6f6f6"}}>
+      <div className='News'>
+        <SportsVideos />
+      </div>
+      </Container>
     </>
 
   )

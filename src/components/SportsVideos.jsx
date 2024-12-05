@@ -1,8 +1,5 @@
 import "./Book.css";
-import Article from "./Article";
 import React, { useState, useEffect } from "react";
-import { db } from "../../firebase";
-import { collection, getDocs } from "firebase/firestore/lite";
 import SportsVideo from "./SportsVideo";
 
 import book8 from '../assets/book/book8.mp3';

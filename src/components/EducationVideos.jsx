@@ -1,7 +1,6 @@
 import "../pages/News.css";
 import Article from "./Article";
 import React, { useState, useEffect } from "react";
-import { db } from "../../firebase";
 import { collection, getDocs } from "firebase/firestore/lite";
 import EducationVideo from "./EducationVideo";
 import edu from "../assets/edu.mp3";

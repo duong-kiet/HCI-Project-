@@ -15,6 +15,7 @@
     "@headlessui/react": "^1.7.14",
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.16.7",
+    "@supabase/supabase-js": "^2.46.2",
     "agora-rtc-sdk-ng": "^4.22.2",
     "axios": "^1.6.2",
     "face-api.js": "^0.22.2",
