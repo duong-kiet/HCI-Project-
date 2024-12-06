@@ -18,8 +18,7 @@ import WaveformVisualizer from "../components/WaveformVisualizer";
 
 const APP_ID = "c8cbee22dffb4dca8e770a51bd2c6b60"; // Điền App ID của bạn
 const CHANNEL = "123"; // Điền tên channel
-const TOKEN = "007eJxTYGhf8zV16qtLTg/MCrglBV5eTVOIczW/9uWneQeLxp/bx50VGJItkpNSU42MUtLSkkxSkhMtUs3NDRJNDZNSjJLNkswMhM64pTcEMjLErbjJyMgAgSA+M4OhkTEDAwCwxCBL";
-
+const TOKEN = "007eJxTYDDVeByx8LKzWwBrtrLDZeZT3EevFJ+43Lqbe94Z+aXbVbcpMCRbJCelphoZpaSlJZmkJCdapJqbGySaGialGCWbJZkZhCYHpTcEMjJsM2RmZWSAQBCfmcHQyJiBAQANrh3O"
 
 function VoiceChat() {
     const [users, setUsers] = useState([]); // Danh sách người dùng

@@ -9,7 +9,7 @@
 
 // const SpeechReg = () => {
 //   const navigate = useNavigate();
-  
+
 //   const commands = [
 //     {
 //       command: ["Go To *"],
@@ -60,9 +60,9 @@
 import 'regenerator-runtime/runtime';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BrowserRouter,Route,Link,redirect} from 'react-router-dom';
+import { BrowserRouter, Route, Link, redirect } from 'react-router-dom';
 import Redirect from 'react-router-dom';
-import SpeechRecognition ,{ useSpeechRecognition } from 'react-speech-recognition';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 import './SpeechReg.css'; // Import the CSS file
 
@@ -72,7 +72,7 @@ const SpeechReg = () => {
   const [clickCount, setClickCount] = useState(0);
   const [showComponent, setShowComponent] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(false);
-  
+
   const commands = [
     {
       command: ["Go To *"],
@@ -82,7 +82,7 @@ const SpeechReg = () => {
 
   const { transcript } = useSpeechRecognition({ commands });
   const [redirectUrl, setRedirectUrl] = useState('');
-  const pages = ['home', 'news', 'profile','call','music'];
+  const pages = ['home', 'news', 'profile', 'call', 'music'];
   const urls = {
     home: "/home-page",
     news: "/news",
@@ -99,7 +99,7 @@ const SpeechReg = () => {
   }
 
   const handleRightClick = () => {
-    
+
     setClickCount((prevCount) => prevCount + 1);
   };
 
@@ -133,7 +133,7 @@ const SpeechReg = () => {
   let string = "";
 
   if (showComponent) {
-    
+
     string = removeDotAtEnd(redirectUrl.toLowerCase());
     if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
       return;
@@ -142,7 +142,7 @@ const SpeechReg = () => {
       setShouldRedirect(true);
 
     } else {
-      
+
     }
   }
   const handleSaveClick = () => {
@@ -155,7 +155,7 @@ const SpeechReg = () => {
         <div className="card">
           <p id="transcript">Transcript: {transcript}</p>
           <p><button onClick={() => SpeechRecognition.startListening()}> Start</button> </p>
-          <button  onClick={handleSaveClick}> Close</button>
+          <button onClick={handleSaveClick}> Close</button>
         </div>
       )}
       {shouldRedirect && navigate(urls[string])}
