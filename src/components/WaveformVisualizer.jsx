@@ -209,5 +209,4 @@ const WaveformVisualizer = ({ localAudioTrack, remoteAudioTracks = [] }) => {
     </div>
   );
 };
-
 export default WaveformVisualizer;

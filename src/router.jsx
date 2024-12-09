@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Layout from "./pages/Layout";
 import UserSelect from "./pages/UserSelect";
 import Protected from "./pages/Protected";
 import Homepage from "./pages/Homepage";
@@ -25,19 +24,18 @@ import SignUp from "./pages/SignUp";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      {/* <Route path="/" element={<Layout />}> */}
-      <Route path="/" element={<Home />} />
-      <Route path="/user-select" element={<UserSelect />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/home-page" element={<Homepage />} />
-      <Route path="/protected" element={<Protected />} />
-      <Route path="/news" element={<News />} />
-      <Route path="/Videocall" element={<VoiceChat />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="//Sports" element={<Sports />} />
-      <Route path="/Radio" element={<Radio />} />
-      <Route path="/Education" element={<Education />} />
-      <Route path="/Books" element={<Books />} />
+      <Route path="/" element={<Home />} /> {/* OK */}
+      <Route path="/user-select" element={<UserSelect />} /> {/* OK */}
+      <Route path="/login" element={<Login />} /> {/* OK */}
+      <Route path="/home-page" element={<Homepage />} /> {/* OK */}
+      <Route path="/protected" element={<Protected />} /> {/* OK */}
+      <Route path="/news" element={<News />} /> {/* OK */}
+      <Route path="/voice-chat" element={<VoiceChat />} /> {/* OK */}
+      <Route path="/profile" element={<Profile />} /> {/* OK */}
+      {/* <Route path="/music" element={<Sports />} /> */}
+      <Route path="/music" element={<Radio />} />
+      {/* <Route path="/Education" element={<Education />} /> */}
+      <Route path="/books" element={<Books />} /> {/* OK */}
       <Route path="*" element={<Navigate to="/" />} />
       <Route path="/signup" element={<SignUp />} />
       {/* </Route> */}

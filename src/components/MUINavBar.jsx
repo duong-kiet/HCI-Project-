@@ -3,6 +3,7 @@ import React from "react";
 import { Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../public/favicon.jpg"
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export const MUINavBar = () => {
   const navigate = useNavigate();
@@ -23,12 +24,17 @@ export const MUINavBar = () => {
   
   function navigateToMusic(e) {
     e.preventDefault();
-    navigate("/Music");
+    navigate("/music");
   }
 
-  function navigateToVideoCall(e) {
+  function navigateToBooks(e) {
     e.preventDefault();
-    navigate("/Videocall");
+    navigate("/books");
+  }
+
+  function navigateToVoiceChat(e) {
+    e.preventDefault();
+    navigate("/voice-chat");
   }
 
   return (
@@ -75,12 +81,22 @@ export const MUINavBar = () => {
           <Button tabIndex={"-1"} sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }} color="inherit" onClick={navigateToMusic}>
             Nghe nhạc
           </Button>
-          <Button tabIndex={"-1"} sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }} color="inherit" onClick={navigateToVideoCall}>
-            Xã hội
+          <Button tabIndex={"-1"} sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }} color="inherit" onClick={navigateToBooks}>
+            Đọc sách
           </Button>
-          <Button tabIndex={"-1"} sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }} color="inherit" onClick={navigateToProfile}>
-            Tài khoản
+          <Button tabIndex={"-1"} sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }} color="inherit" onClick={navigateToVoiceChat}>
+            Trò chuyện
           </Button>
+          <IconButton
+            tabIndex="-1"
+            sx={{
+              '&:hover': { backgroundColor: '#c2c2c2' },
+            }}
+            color="inherit"
+            onClick={navigateToProfile}
+          >
+            <AccountCircleIcon />
+          </IconButton>
         </Stack>
       </Toolbar>
     </AppBar>

@@ -478,16 +478,16 @@ function Homepage() {
       callback: () => navigate("/news"),
     },
     {
-      command: ["thể thao", "mở thể thao", "đi đến thể thao"],
-      callback: () => navigate("/sports"),
+      command: ["đọc sách", "mở đọc sách", "đi đến đọc sách"],
+      callback: () => navigate("/books"),
     },
     {
-      command: ["âm nhạc", "mở âm nhạc", "đi đến âm nhạc"],
-      callback: () => alert("Trang Âm nhạc hiện chưa sẵn sàng!"),
+      command: ["nghe nhạc", "mở nghe nhạc", "đi đến nghe nhạc"],
+      callback: () => navigate("/music"),
     },
     {
-      command: ["mạng xã hội", "mở mạng xã hội", "đi đến mạng xã hội"],
-      callback: () => alert("Trang VConnect hiện chưa sẵn sàng!"),
+      command: ["trò chuyện", "mở trò chuyện", "đi đến trò chuyện"],
+      callback: () => navigate("/voice-chat"),
     },
   ];
 

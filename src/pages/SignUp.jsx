@@ -173,7 +173,7 @@ function SignUp() {
   // Hàm phát audio
   const playAudio = (audioSrc) => {
     if (audioRef.current) {
-      audioRef.current.pause(); // Dừng audio hiện tại (nếu có)
+      // audioRef.current.pause(); // Dừng audio hiện tại (nếu có)
       audioRef.current.src = audioSrc;
       audioRef.current.play();
     }
