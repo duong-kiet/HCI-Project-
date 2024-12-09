@@ -1,13 +1,13 @@
 import "../pages/News.css";
 import Article from "./Article";
 import {useEffect, useRef, useState} from "react";
-import {db} from "../supabase-2.js";
+import {supabase} from "../supabase.js";
 import NewsAudio from "../assets/mp3/News.mp3";
 import {useNavigate} from "react-router-dom";
 const Newspaper = () => {
   const [articles, setArticles] = useState([]);
   useEffect( () => {
-    db.from('news').select().order('id', {ascending: false}).then(({data,})=> {
+    supabase.from('news').select().order('id', {ascending: false}).then(({data,})=> {
       let temp = []
       data.forEach((article) => {
         temp.push({
