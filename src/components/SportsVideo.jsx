@@ -41,10 +41,14 @@ function SportsVideo({ video }) {
   };
   
   return (
-    <div className="news_book">
+    <div className="news_book my-4">
+      <CardMedia
+          sx={{ height: 300 }}
+          image={video.audioImage}
+          title="green iguana"
+      />
       <CardActions >
-        <Typography gutterBottom variant="h5" component="div">
-          </Typography>
+        <Typography gutterBottom variant="h5" component="div"></Typography>
         <IconButton
           tabIndex={"1"}
           style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}
@@ -66,7 +70,7 @@ function SportsVideo({ video }) {
           align="right"
           className="italic"
         >
-          Ngày đăng: {video.date}
+          Tác giả: {video.author}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {video.description}

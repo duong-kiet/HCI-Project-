@@ -15,7 +15,7 @@
     "@headlessui/react": "^1.7.14",
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.16.7",
-    "@supabase/supabase-js": "^2.46.1",
+    "@supabase/supabase-js": "^2.46.2",
     "agora-rtc-sdk-ng": "^4.19.3",
     "axios": "^1.6.2",
     "dotenv": "^16.4.5",
@@ -23,11 +23,12 @@
     "file-saver": "^2.0.5",
     "firebase": "^10.14.1",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.460.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.1",
     "react-speech-recognition": "^3.10.0",
-    "regenerator-runtime": "^0.14.0",
+    "regenerator-runtime": "^0.14.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

@@ -10,10 +10,16 @@ import {
 import React from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Stack } from "@mui/material";
+import Logo from "../../public/favicon.jpg";
 import { Link, useNavigate } from "react-router-dom";
 
 export const NavBarNews = () => {
   const navigate = useNavigate();
+
+  function navigateToHome(e) {
+    e.preventDefault();
+    navigate("/home-page");
+  }
 
   function navigateToRadio(e) {
     e.preventDefault();
@@ -42,25 +48,36 @@ export const NavBarNews = () => {
 
   return (
     <AppBar
-      position="static"
-      // sx={{ backgroundColor: "#1e6f8a" }}
-      color="info"
-      className="rounded-b-full"
+      position="sticky"
+      sx={{ backgroundColor: "#fffffff" }}
     >
-      <Toolbar tabIndex={"-1"}>
+      <Toolbar sx={{ color: "#a75c00" }}>
         <IconButton
           tabIndex={"-1"}
           size="large"
           edge="start"
           color="bg-blue-900"
           aria-label="logo"
-        ></IconButton>
-        <Typography
-          tabIndex={"-1"}
-          variant="h6"
-          component="div"
-          sx={{ flexGrow: 1 }}
-        ></Typography>
+          className="w-30"
+          sx={{ paddingRight: 0 }}
+        >
+          <img
+            src={Logo}
+            alt="Logo"
+            style={{ width: "40px", height: "40px" }}
+          />
+        </IconButton>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <IconButton
+            tabIndex={"-1"}
+            color="inherit"
+            onClick={navigateToHome}
+            className="h-10"
+            sx={{ fontSize: 35, fontWeight: "bold" }}
+          >
+            TheEyes
+          </IconButton>
+        </Typography>
         {/* Search bar */}
         <InputBase
           tabIndex={"-1"}
@@ -70,26 +87,47 @@ export const NavBarNews = () => {
             ml: 1,
             flex: 1,
             borderRadius: 4,
-            backgroundColor: alpha("#fff", 0.15),
+            backgroundColor: alpha("#a75c00", 0.15),
             "&:hover": {
-              backgroundColor: alpha("#fff", 0.25),
+              backgroundColor: alpha("#a75c00", 0.25),
             },
             p: "8px 12px",
+            marginRight: 2
           }}
         />
         {/* End of search bar */}
         <Stack direction="row" spacing={2}>
-          <Button tabIndex={"-1"} color="inherit" onClick={navigateToNews}>
+        <Button
+            tabIndex={"-1"}
+            sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }}
+            color="inherit"
+            onClick={navigateToHome}
+          >
+            Trang chủ
+          </Button>
+          <Button
+            tabIndex={"-1"}
+            sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }}
+            color="inherit"
+            onClick={navigateToNews}
+          >
             Tin tức
           </Button>
-          <Button tabIndex={"-1"} color="inherit" onClick={navigateToBooks}>
-            Sách nói
-          </Button>
-          <Button tabIndex={"-1"} color="inherit" onClick={navigateToEducation}>
-            Học tập
-          </Button>
-          <Button tabIndex={"-1"} color="inherit" onClick={navigateToRadio}>
-            Âm nhạc
+          <Button
+            tabIndex={"-1"}
+            sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }}
+            color="inherit"
+            onClick={navigateToRadio}
+          >
+            Âm nhạc	      
+          </Button>	 
+          <Button
+            tabIndex={"-1"}
+            sx={{ '&:hover': { backgroundColor: "#c2c2c2" } }}
+            color="inherit"
+            onClick={navigateToRadio}
+          >
+            Xã hội
           </Button>
         </Stack>
       </Toolbar>

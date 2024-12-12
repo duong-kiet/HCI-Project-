@@ -1,56 +1,135 @@
 import "../pages/News.css";
 import Article from "./Article";
-import React, { useState, useEffect } from "react";
-import { db } from "../../firebase";
-import { collection, getDocs } from "firebase/firestore/lite";
-
+import {useEffect, useRef, useState} from "react";
+import {supabase} from "../supabase.js";
+import NewsAudio from "../assets/mp3/News.mp3";
+import {useNavigate} from "react-router-dom";
 const Newspaper = () => {
   const [articles, setArticles] = useState([]);
-
-  useEffect(() => {
-    const getArticles = async () => {
-    const articlesCol = collection(db, 'articles');
-    const articleSnapshot = await getDocs(articlesCol);
-    const articles = articleSnapshot.docs.map(doc => doc.data());
-    // setArticles(articles);
-    const url = 'https://api.fpt.ai/hmi/tts/v5';
-    const headers = new Headers({
-      'Content-Type': 'application/json',
-      'api-key': 'u6PXADUPP0luylzHNLJaVYYN1kT7ltP7',
-      'speed': '',
-      'voice': 'banmai',
-    });
-
-    const articlePromises = articles.map(async article => {
-      const response1 = await fetch(url, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ text: article.title }) 
-      });
-      const response2 = await fetch(url, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ text: article.content }) // send the article content to the API
-      });
-    
-      const data1 = await response1.json();
-      const data2 = await response2.json();
-      // replace the article's audioUrl with the API response
-      article.audioTitle = data1.async; // replace 'async' with the actual property from the API response
-      article.audioUrl = data2.async;
-      return article;
-    });
-    const updatedArticles = await Promise.all(articlePromises);
-    setArticles(updatedArticles);
-  };
-    getArticles();
+  useEffect( () => {
+    supabase.from('news').select().order('id', {ascending: false}).then(({data,})=> {
+      let temp = []
+      data.forEach((article) => {
+        temp.push({
+          title: article.title,
+          description: article.description,
+          date: new Date(article.date).toLocaleDateString("vi-VN"),
+          audioUrl: "src/assets/mp3/news/" + article.id +".mp3",
+          audioTitle: "",
+          urlToImage: article.img
+        })
+      })
+      setArticles(temp)
+    })
   }, []);
 
+  const playAudio = (audioSrc) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = audioSrc;
+      audioRef.current.play();
+    }
+  }
+
+  const playRandomRadio = () => {
+    const randomIndex = Math.floor(Math.random() * articles.length);
+    const randomRadio = articles[randomIndex]["audioUrl"];
+    current_playing.current = randomRadio;
+    playAudio(randomRadio);
+  }
+  function play(index) {
+    if (current_playing.current === index) {
+      if (audioRef.current.paused) audioRef.current.play()
+      else audioRef.current.pause()
+    }
+    else {
+      current_playing.current = index
+      playAudio(articles[index]["audioUrl"])
+    }
+  }
+
+  const current_playing = useRef(null);
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (articles.length) {
+      audioRef.current = new Audio(NewsAudio);
+      // playAudio(audioRef.current)
+      audioRef.current.play();
+      // audioRef.current.onended = playRandomRadio;
+
+      if (!("webkitSpeechRecognition" in window)) {
+        console.error("Trình duyệt không hỗ trợ Speech Recognition.");
+        return;
+      }
+
+      const createRecognition = () => {
+        const recognition = new window.webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.lang = "vi-VN"; // Ngôn ngữ tiếng Việt
+        recognition.interimResults = false;
+
+        recognition.onresult = (event) => {
+          const command = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+          console.log("Voice Command:", command);
+
+          if (command.includes("đổi tin")) {
+            playRandomRadio();
+          } else if (command.includes("trang chủ")) {
+            navigate("/home-page");
+          } else if (command.includes("tiếp tục")) {
+            audioRef.current.play();
+          }
+          else if (command.includes("bắt đầu")) {
+            playRandomRadio();
+          } else if (command.includes("đọc sách") || command.includes("mở đọc sách") || command.includes("đi đến đọc sách")) {
+            navigate("/books");
+          } else if (command.includes("nghe nhạc") || command.includes("mở nghe nhạc") || command.includes("đi đến nghe nhạc")) {
+            navigate("/music");
+          } else if (command.includes("trò chuyện") || command.includes("mở trò chuyện") || command.includes("đi đến trò chuyện")) {
+            navigate("/voice-chat");
+          }
+        };
+
+        recognition.start();
+        recognitionRef.current = recognition; // Lưu vào tham chiếu để quản lý sau này
+      };
+
+      createRecognition();
+
+      const handleKeyDown = (event) => {
+        if (event.key === "Enter") {
+          audioRef.current.pause();
+          // audioRef.current.currentTime = 0;
+          if (recognitionRef.current) {
+            recognitionRef.current.stop();
+          }
+          createRecognition();
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+
+      // Cleanup function
+      return () => {
+        if (recognitionRef.current) {
+          recognitionRef.current.stop();
+        }
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.src = ""; // Dừng phát
+        }
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [articles]);
+  const audioRef = useRef(new Audio())
+  const recognitionRef = useRef(null)
   return (
     <div>
-      <div className="all__news">
+      <div className="all__news p-[40px]">
         {articles.map((article, index) => (
-          <Article key={index} article={article} />
+          <Article play={() => play(index)} key={index} article={article} />
         ))}
       </div>
     </div>
