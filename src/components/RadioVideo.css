@@ -1,0 +1,60 @@
+.news_container {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* Mỗi hàng chỉ có 1 cột */
+  gap: 10px;
+  /* Khoảng cách giữa các thẻ */
+}
+
+.news_book .MuiCardMedia-root {
+  margin-bottom: 16px;
+  /* hoặc padding-bottom: 16px */
+}
+
+.news_book {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  transition: all 0.3s ease;
+  background: #FFF8E7;
+  border-radius: 12px;
+}
+
+/* Style mặc định cho card với shadow nhẹ */
+.news_book .MuiCard-root {
+  border: 3px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng hover với viền dày và shadow rõ hơn */
+.news_book:hover .MuiCard-root {
+  border: 3px solid #7b3b0e;
+  box-shadow:
+    0 8px 16px rgba(139, 69, 19, 0.2),
+    /* shadow chính */
+    0 0 0 4px rgba(139, 69, 19, 0.1);
+  /* outer glow effect */
+  transform: translateY(-4px);
+}
+
+/* Thêm hiệu ứng cho nút điều khiển */
+.news_book .MuiIconButton-root {
+  transition: all 0.2s ease;
+}
+
+.news_book .MuiIconButton-root:hover {
+  color: #8B4513;
+  background-color: rgba(139, 69, 19, 0.1);
+  transform: scale(1.1);
+}
+
+/* Hiệu ứng cho thanh progress */
+.news_book:hover .MuiLinearProgress-root {
+  height: 6px;
+}
+
+.news_book .MuiLinearProgress-root {
+  transition: all 0.3s ease;
+  height: 4px;
+}
